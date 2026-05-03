@@ -1,0 +1,43 @@
+# =============================================================================
+# Kind Cluster Configuration — Fraud Detection Platform
+# =============================================================================
+# 1 control-plane + 2 workers with NodePort mappings for all services.
+# =============================================================================
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  # --- Control Plane ---
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    extraPortMappings:
+      # Kafka External
+      - containerPort: 30092
+        hostPort: 30092
+        protocol: TCP
+      # Kafka UI
+      - containerPort: 30989
+        hostPort: 30989
+        protocol: TCP
+      # Redis
+      - containerPort: 30379
+        hostPort: 30379
+        protocol: TCP
+      # Cassandra CQL
+      - containerPort: 30942
+        hostPort: 30942
+        protocol: TCP
+      # Spark Master UI
+      - containerPort: 30808
+        hostPort: 30808
+        protocol: TCP
+
+  # --- Worker 1 ---
+  - role: worker
+
+  # --- Worker 2 ---
+  - role: worker
